@@ -1,55 +1,60 @@
-import React from "react";
+import React, {useState, useEffect} from "react";
 import SearchBar from "./SearchBar";
 import youtube from "../apis/youtube";
 import VideoList from "./VideoList";
 import VideoDetail from "./VideoDetail";
 
-class App extends React.Component {
-  state = { videos: [], selectedVideo: null };
 
 
-  componentDidMount() {
-	  this.onTermSubmit('Rick Astley')
-  }
 
-  onTermSubmit = async (term) => {
-    const response = await youtube.get("/search", {
-      params: {
-        q: term,
-      },
-    });
+const App = (params) => {
+  const [videos, setVideos] = useState([]);
+  const [selectedVideo, setSelectedVideo] = useState(null)
 
-    this.setState({ 
-		videos: response.data.items,
-		selectedVideo: response.data.items[0]
-	 });
-  };
+  useEffect(() => {
+    onTermSubmit('buildings');
+  },[])
 
-  onVideoSelect = (video) => {
-    this.setState({
-		 selectedVideo: video });
-  };
+    const onTermSubmit = async (term) => {
+      const response = await youtube.get("/search", {
+        params: {
+          q: term,
+        },
+      });
 
-  render() {
+      setVideos(response.data.items)
+      setSelectedVideo(response.data.items[0])
+  
+    };
+  
+   const onVideoSelect = (video) => {
+      setSelectedVideo(video)
+    };
+
     return (
       <div className="ui container">
-        <SearchBar onFormSubmit={this.onTermSubmit} />
+        <SearchBar onFormSubmit={onTermSubmit} />
         <div className="ui grid">
           <div className="ui row">
             <div className="ten wide column">
-              <VideoDetail video={this.state.selectedVideo} />
+              <VideoDetail video={selectedVideo} />
             </div>
             <div className="five wide column">
               <VideoList
-                onVideoSelect={this.onVideoSelect}
-                videos={this.state.videos}
+                onVideoSelect={onVideoSelect}
+                videos={videos}
               />
             </div>
           </div>
         </div>
       </div>
     );
-  }
 }
+
+
+
+  
+
+
 
 export default App;
